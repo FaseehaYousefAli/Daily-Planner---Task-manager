@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Planner</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap');
+
+:root {
+  /* Layered Surface Contrast */
+  --bg: #ECECE3;
+  --card: #FFFFFF;
+  --card-subtle: #F7F7F2;
+  
+  /* Typography */
+  --text: #1F2922;
+  --muted: #68756C;
+  
+  /* Primary Brand & Highlights */
+  --accent: #3E5641;
+  --accent-hover: #2E4130;
+  --soft: #DCE5DC;
+  --line: #E2E5DC;
+
+  /* Category Color Coding */
+  --work-bg: #E6EFE8;
+  --work-text: #2D5A3C;
+  --personal-bg: #F9EAE5;
+  --personal-text: #9E4A36;
+  --appt-bg: #E5EEF5;
+  --appt-text: #345C7D;
+
+  /* Priority Badges */
+  --high-bg: #FDE8E4;
+  --high-text: #B43C28;
+  --med-bg: #FEF4DC;
+  --med-text: #946814;
+  --low-bg: #E6F2EA;
+  --low-text: #2B6A44;
+}
+
+body.dark {
+  --bg: #141916;
+  --card: #1F2622;
+  --card-subtle: #27302B;
+  
+  --text: #F2F5F3;
+  --muted: #98A69D;
+  
+  --accent: #8FB396;
+  --accent-hover: #A3C4A9;
+  --soft: #2C3830;
+  --line: #2E3832;
+
+  /* Category Color Coding (Dark) */
+  --work-bg: #23382A;
+  --work-text: #8FD1A4;
+  --personal-bg: #3D2823;
+  --personal-text: #F2A391;
+  --appt-bg: #223240;
+  --appt-text: #8EC2EB;
+
+  /* Priority Badges (Dark) */
+  --high-bg: #422420;
+  --high-text: #F59B8C;
+  --med-bg: #3D331C;
+  --med-text: #F2CE7E;
+  --low-bg: #203829;
+  --low-text: #86D1A2;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  transition: background .25s, color .25s;
+}
+
+h1, h2, h3, .motto {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app {
+  max-width: 960px;
+  margin: auto;
+  padding: 32px 24px 50px;
+}
+
+/* Header */
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 32px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.motto {
+  font-size: 25px;
+  font-weight: 700;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-pill {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 11px 22px;
+  border-radius: 99px;
+  font-size: 17px;
+  font-weight: 600;
+  transition: .2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,.03);
+}
+
+.nav-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.icon-btn {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  transition: .2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,.03);
+}
+
+.icon-btn:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+/* Greeting */
+
+.greeting {
+  margin-bottom: 24px;
+}
+
+.greeting h1 {
+  font-size: clamp(26px, 4vw, 34px);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.greeting p {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* General cards */
+
+.date-card, .task-section {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 8px 24px rgba(25, 35, 28, .04);
+}
+
+/* Calendar */
+
+.date-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.date-top h3 {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.date-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--card-subtle);
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.date-controls button {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 4px 8px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: .15s;
+}
+
+.date-controls button:hover {
+  background: var(--soft);
+  color: var(--accent);
+}
+
+.date-controls input {
+  width: 28px;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.day {
+  border: 1px solid transparent;
+  background: var(--card-subtle);
+  color: var(--text);
+  padding: 12px 4px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: all .2s ease;
+}
+
+.day:hover:not(.active) {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.day span:first-child {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.day span:last-child {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.day.active {
+  background: var(--accent);
+  color: #FFFFFF;
+  box-shadow: 0 6px 14px rgba(62, 86, 65, .25);
+}
+
+body.dark .day.active {
+  color: #141916;
+}
+
+.day.active span:first-child {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+body.dark .day.active span:first-child {
+  color: rgba(20, 25, 22, 0.75);
+}
+
+/* Featured Progress Card */
+
+.progress-card {
+  margin: 20px 0 24px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #3E5641 0%, #2C402F 100%);
+  color: #FFFFFF;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(44, 64, 47, .2);
+}
+
+body.dark .progress-card {
+  background: linear-gradient(135deg, #2A3B2E 0%, #1F2C22 100%);
+  border: 1px solid #3B5240;
+}
+
+.progress-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 10px;
+}
+
+.progress-heading h3 {
+  font-weight: 600;
+  font-size: 16px;
+  color: #FFFFFF;
+}
+
+.progress-heading span {
+  color: #D6E6D8;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.12);
+  padding: 4px 10px;
+  border-radius: 99px;
+}
+
+.progress-track {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0;
+  background: #BCE0C2;
+  border-radius: 20px;
+  transition: width .4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Task sections with Category Color Coding */
+
+.task-section {
+  margin-bottom: 18px;
+  border-left: 5px solid var(--accent);
+  transition: transform .2s;
+}
+
+.task-section[data-category="Work"] {
+  border-left-color: var(--work-text);
+}
+
+.task-section[data-category="Personal"] {
+  border-left-color: var(--personal-text);
+}
+
+.task-section[data-category="Appointments"] {
+  border-left-color: var(--appt-text);
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-title h2 {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.section-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  font-weight: 700;
+  background: var(--soft);
+  color: var(--accent);
+}
+
+.task-section[data-category="Work"] .section-icon {
+  background: var(--work-bg);
+  color: var(--work-text);
+}
+
+.task-section[data-category="Personal"] .section-icon {
+  background: var(--personal-bg);
+  color: var(--personal-text);
+}
+
+.task-section[data-category="Appointments"] .section-icon {
+  background: var(--appt-bg);
+  color: var(--appt-text);
+}
+
+.add-btn {
+  background: var(--card-subtle);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 8px 15px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: .2s;
+}
+
+.add-btn:hover {
+  background: var(--accent);
+  color: #FFFFFF;
+  border-color: var(--accent);
+}
+
+body.dark .add-btn:hover {
+  color: #141916;
+}
+
+/* Tasks */
+
+.task {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 12px;
+  margin-top: 8px;
+  background: var(--card-subtle);
+  border: 1px solid transparent;
+  border-radius: 13px;
+  transition: .2s;
+}
+
+.task:hover {
+  border-color: var(--line);
+  background: var(--card);
+  box-shadow: 0 4px 12px rgba(0,0,0,.03);
+}
+
+.task-check {
+  appearance: none;
+  width: 21px;
+  height: 21px;
+  border: 2px solid var(--accent);
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: .15s;
+}
+
+.task-check:checked {
+  background: var(--accent);
+}
+
+.task-check:checked::after {
+  content: "✓";
+  color: white;
+  font-weight: 700;
+  position: absolute;
+  left: 3.5px;
+  top: -1px;
+  font-size: 13px;
+}
+
+body.dark .task-check:checked::after {
+  color: #141916;
+}
+
+.task-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-name {
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.task-description {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.task.completed .task-name {
+  text-decoration: line-through;
+  opacity: .55;
+}
+
+.priority {
+  padding: 4px 11px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.priority.High { background: var(--high-bg); color: var(--high-text); }
+.priority.Medium { background: var(--med-bg); color: var(--med-text); }
+.priority.Low { background: var(--low-bg); color: var(--low-text); }
+
+.task-date {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.task-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.action-btn {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 15px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  transition: .15s;
+}
+
+.action-btn:hover {
+  background: var(--soft);
+  color: var(--text);
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 18px 10px;
+  background: var(--card-subtle);
+  border-radius: 12px;
+  border: 1px dashed var(--line);
+}
+
+/* Completed */
+
+.completed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.completed-header h2 {
+  font-weight: 700;
+  font-size: 22px;
+}
+
+.completed-group {
+  margin-bottom: 18px;
+}
+
+/* Footer */
+
+footer {
+  text-align: center;
+  margin-top: 36px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Modal */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 22, 18, .55);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  z-index: 10;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal {
+  background: var(--card);
+  color: var(--text);
+  width: 100%;
+  max-width: 430px;
+  border-radius: 22px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  box-shadow: 0 20px 50px rgba(0,0,0,.22);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal h2 {
+  font-weight: 700;
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 11px 13px;
+  background: var(--card-subtle);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  outline: none;
+  color: var(--text);
+  font-size: 14px;
+  transition: border-color .2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--accent);
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
+.modal-actions button {
+  border: none;
+  padding: 11px 20px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.cancel-btn {
+  background: var(--card-subtle);
+  color: var(--text);
+  border: 1px solid var(--line) !important;
+}
+
+.save-btn {
+  background: var(--accent);
+  color: #FFFFFF;
+}
+
+body.dark .save-btn {
+  color: #141916;
+}
+
+/* Responsive */
+
+@media(max-width: 650px) {
+  .app {
+    padding: 20px 14px 40px;
+  }
+
+  .date-card, .task-section {
+    padding: 16px;
+  }
+
+  .progress-card {
+    padding: 18px;
+  }
+
+  .day {
+    padding: 10px 2px;
+  }
+
+  .task {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .task-info {
+    min-width: 120px;
+  }
+
+  .task-date {
+    display: none;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+  <div class="motto">🌿 Today is yours!</div>
+  <div class="header-actions">
+    <button class="nav-pill" onclick="showCompleted()">
+      Completed 
+    </button>
+    <button class="icon-btn" onclick="toggleDark()" title="Toggle theme">☾</button>
+  </div>
+</header>
+
+<div id="homeView">
+
+  <section class="greeting">
+    <h1 id="dateHeading">Today</h1>
+
+  </section>
+
+  <section class="date-card">
+    <div class="date-top">
+      <h3 id="monthHeading"></h3>
+      <div class="date-controls">
+        <button onclick="changeWeek(-7)" title="Previous week">‹</button>
+        <button onclick="goToday()" style="font-size:12px">Today</button>
+        <input type="date" id="datePicker" title="Choose a date">
+        <button onclick="changeWeek(7)" title="Next week">›</button>
+      </div>
+    </div>
+    <div class="week" id="week"></div>
+  </section>
+
+  <section class="progress-card">
+    <div class="progress-heading">
+      <h3>Today's Progress</h3>
+      <span id="progressText">0 of 0 · 0%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </section>
+
+  <div id="sections"></div>
+
+</div>
+
+<div id="completedView" style="display:none">
+  <div class="completed-header">
+    <h2>Completed Tasks</h2>
+    <button class="nav-pill" onclick="showHome()">← Back to Planner</button>
+  </div>
+  <div id="completedList"></div>
+</div>
+
+
+
+</div>
+
+<!-- Add / Edit modal -->
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modalTitle">Add a task</h2>
+
+    <form id="taskForm">
+
+      <div class="form-group">
+        <label>Task name</label>
+        <input type="text" id="taskName"
+          placeholder="What needs to be done?" required>
+      </div>
+
+      <div class="form-group">
+        <label>Category</label>
+        <select id="taskCategory">
+          <option value="Work">Work</option>
+          <option value="Personal">Personal</option>
+          <option value="Appointments">Appointments</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Due date</label>
+        <input type="date" id="taskDate" required>
+      </div>
+
+      <div class="form-group">
+        <label>Priority</label>
+        <select id="taskPriority">
+          <option value="High">High</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="Low">Low</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Description (optional)</label>
+        <textarea id="taskDescription" rows="2"
+          placeholder="Add a little note..."></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn"
+          onclick="closeModal()">Cancel</button>
+        <button type="submit" class="save-btn" id="saveBtn">
+          Save task
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+
+// ---------- DATA ----------
+
+const categories = ["Work", "Personal", "Appointments"];
+
+const icons = {
+  Work: "✧",
+  Personal: "♡",
+  Appointments: "✿"
+};
+
+let tasks = JSON.parse(
+  localStorage.getItem("myPlansTasks") || "[]"
+);
+
+let selectedDate = getLocalDate(new Date());
+let weekOffset = 0;
+let editingId = null;
+
+// ---------- DATE HELPERS ----------
+
+function getLocalDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function parseDate(value) {
+  const [y, m, d] = value.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function formatDate(value) {
+  return parseDate(value).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  });
+}
+
+function saveTasks() {
+  localStorage.setItem("myPlansTasks", JSON.stringify(tasks));
+}
+
+// ---------- DATE DISPLAY ----------
+
+function renderDate() {
+  const date = parseDate(selectedDate);
+
+  document.getElementById("dateHeading").textContent =
+    date.toLocaleDateString("en-GB", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+
+  document.getElementById("monthHeading").textContent =
+    date.toLocaleDateString("en-GB", {
+      month: "long",
+      year: "numeric"
+    });
+
+  document.getElementById("datePicker").value = selectedDate;
+
+  renderWeek();
+}
+
+function renderWeek() {
+  const selected = parseDate(selectedDate);
+  const monday = new Date(selected);
+
+  monday.setDate(
+    monday.getDate() - ((monday.getDay() + 6) % 7)
+    + weekOffset
+  );
+
+  const week = document.getElementById("week");
+  week.innerHTML = "";
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+
+    const value = getLocalDate(date);
+
+    const button = document.createElement("button");
+    button.className = "day" +
+      (value === selectedDate ? " active" : "");
+
+    const weekday = document.createElement("span");
+    weekday.textContent = date.toLocaleDateString("en-GB", {
+      weekday: "short"
+    });
+
+    const number = document.createElement("span");
+    number.textContent = date.getDate();
+
+    button.append(weekday, number);
+
+    button.onclick = () => {
+      selectedDate = value;
+      weekOffset = 0;
+      renderAll();
+    };
+
+    week.appendChild(button);
+  }
+}
+
+function changeWeek(amount) {
+  weekOffset += amount;
+  renderWeek();
+}
+
+function goToday() {
+  selectedDate = getLocalDate(new Date());
+  weekOffset = 0;
+  renderAll();
+}
+
+document.getElementById("datePicker").addEventListener(
+  "change", e => {
+    if (!e.target.value) return;
+    selectedDate = e.target.value;
+    weekOffset = 0;
+    renderAll();
+  }
+);
+
+// ---------- TASK ELEMENT ----------
+
+function createTaskElement(task) {
+  const row = document.createElement("div");
+  row.className = "task";
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.className = "task-check";
+  checkbox.checked = task.completed;
+
+  checkbox.addEventListener("change", () => {
+    task.completed = checkbox.checked;
+    task.completedAt = task.completed
+      ? new Date().toISOString()
+      : null;
+
+    saveTasks();
+
+    if (document.getElementById("completedView").style.display === "block") {
+      showCompleted();
+    } else {
+      renderAll();
+    }
+  });
+
+  const info = document.createElement("div");
+  info.className = "task-info";
+
+  const name = document.createElement("div");
+  name.className = "task-name";
+  name.textContent = task.name;
+
+  info.appendChild(name);
+
+  if (task.description) {
+    const description = document.createElement("div");
+    description.className = "task-description";
+    description.textContent = task.description;
+    info.appendChild(description);
+  }
+
+  const priority = document.createElement("span");
+  priority.className = "priority " + task.priority;
+  priority.textContent = task.priority;
+
+  const date = document.createElement("span");
+  date.className = "task-date";
+  date.textContent = formatDate(task.date);
+
+  const actions = document.createElement("div");
+  actions.className = "task-actions";
+
+  const edit = document.createElement("button");
+  edit.className = "action-btn";
+  edit.textContent = "✎";
+  edit.title = "Edit task";
+  edit.setAttribute("aria-label", "Edit " + task.name);
+  edit.onclick = () => editTask(task.id);
+
+  const del = document.createElement("button");
+  del.className = "action-btn";
+  del.textContent = "×";
+  del.title = "Delete task";
+  del.setAttribute("aria-label", "Delete " + task.name);
+
+  del.onclick = () => {
+    if (confirm("Delete this task?")) {
+      tasks = tasks.filter(t => t.id !== task.id);
+      saveTasks();
+      renderAll();
+
+      if (document.getElementById("completedView").style.display === "block") {
+        showCompleted();
+      }
+    }
+  };
+
+  actions.append(edit, del);
+  row.append(checkbox, info, priority, date, actions);
+
+  if (task.completed) row.classList.add("completed");
+
+  return row;
+}
+
+// ---------- TASK SECTIONS ----------
+
+function renderSections() {
+  const container = document.getElementById("sections");
+  container.innerHTML = "";
+
+  categories.forEach(category => {
+    const categoryTasks = tasks.filter(task =>
+      task.category === category &&
+      task.date === selectedDate &&
+      !task.completed
+    );
+
+    const section = document.createElement("section");
+    section.className = "task-section";
+    section.setAttribute("data-category", category);
+
+    const heading = document.createElement("div");
+    heading.className = "section-heading";
+
+    const title = document.createElement("div");
+    title.className = "section-title";
+
+    const icon = document.createElement("span");
+    icon.className = "section-icon";
+    icon.textContent = icons[category];
+
+    const name = document.createElement("h2");
+    name.textContent = category;
+
+    title.append(icon, name);
+
+    const add = document.createElement("button");
+    add.className = "add-btn";
+    add.textContent = "+ Add Task";
+    add.onclick = () => openModal(category);
+
+    heading.append(title, add);
+    section.appendChild(heading);
+
+    if (categoryTasks.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent =
+        "Nothing scheduled here yet.";
+      section.appendChild(empty);
+    }
+
+    categoryTasks.forEach(task => {
+      section.appendChild(createTaskElement(task));
+    });
+
+    container.appendChild(section);
+  });
+}
+
+// ---------- PROGRESS ----------
+
+function renderProgress() {
+  const todaysTasks = tasks.filter(task =>
+    task.date === selectedDate
+  );
+
+  const completed = todaysTasks.filter(task =>
+    task.completed
+  ).length;
+
+  const total = todaysTasks.length;
+
+  const percentage = total
+    ? Math.round((completed / total) * 100)
+    : 0;
+
+  document.getElementById("progressText").textContent =
+    `${completed} of ${total} · ${percentage}%`;
+
+  document.getElementById("progressFill").style.width =
+    percentage + "%";
+}
+
+// ---------- ADD TASK ----------
+
+function openModal(category) {
+  editingId = null;
+
+  document.getElementById("taskForm").reset();
+
+  document.getElementById("modalTitle").textContent =
+    `New ${category} Task`;
+
+  document.getElementById("saveBtn").textContent =
+    "Save task";
+
+  document.getElementById("taskCategory").value = category;
+  document.getElementById("taskDate").value = selectedDate;
+
+  document.getElementById("modal").classList.add("show");
+  document.getElementById("taskName").focus();
+}
+
+// ---------- EDIT TASK ----------
+
+function editTask(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+
+  editingId = id;
+
+  document.getElementById("modalTitle").textContent =
+    "Edit Task";
+
+  document.getElementById("saveBtn").textContent =
+    "Update task";
+
+  document.getElementById("taskName").value = task.name;
+  document.getElementById("taskCategory").value = task.category;
+  document.getElementById("taskDate").value = task.date;
+  document.getElementById("taskPriority").value = task.priority;
+  document.getElementById("taskDescription").value =
+    task.description || "";
+
+  document.getElementById("modal").classList.add("show");
+  document.getElementById("taskName").focus();
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("show");
+  editingId = null;
+}
+
+document.getElementById("taskForm").addEventListener(
+  "submit", e => {
+    e.preventDefault();
+
+    const name = document.getElementById("taskName").value.trim();
+    const category = document.getElementById("taskCategory").value;
+    const date = document.getElementById("taskDate").value;
+    const priority = document.getElementById("taskPriority").value;
+    const description =
+      document.getElementById("taskDescription").value.trim();
+
+    if (!name || !date) return;
+
+    if (editingId) {
+      const task = tasks.find(t => t.id === editingId);
+
+      if (task) {
+        task.name = name;
+        task.category = category;
+        task.date = date;
+        task.priority = priority;
+        task.description = description;
+      }
+    } else {
+      tasks.push({
+        id: crypto.randomUUID(),
+        name,
+        category,
+        date,
+        priority,
+        description,
+        completed: false,
+        completedAt: null
+      });
+    }
+
+    saveTasks();
+    closeModal();
+    renderAll();
+  }
+);
+
+// ---------- COMPLETED VIEW ----------
+
+function showCompleted() {
+  document.getElementById("homeView").style.display = "none";
+  document.getElementById("completedView").style.display = "block";
+
+  const list = document.getElementById("completedList");
+  list.innerHTML = "";
+
+  const completed = tasks.filter(task => task.completed);
+
+  if (completed.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent =
+      "Your completed tasks will appear here once checked off.";
+    list.appendChild(empty);
+  }
+
+  categories.forEach(category => {
+    const group = completed.filter(t => t.category === category);
+
+    if (!group.length) return;
+
+    const section = document.createElement("section");
+    section.className = "task-section completed-group";
+    section.setAttribute("data-category", category);
+
+    const heading = document.createElement("div");
+    heading.className = "section-heading";
+
+    const title = document.createElement("div");
+    title.className = "section-title";
+
+    const icon = document.createElement("span");
+    icon.className = "section-icon";
+    icon.textContent = icons[category];
+
+    const name = document.createElement("h2");
+    name.textContent = category;
+    title.append(icon, name);
+
+    const count = document.createElement("span");
+    count.style.color = "var(--muted)";
+    count.style.fontSize = "12px";
+    count.style.fontWeight = "600";
+    count.textContent = group.length + " completed";
+
+    heading.append(title, count);
+    section.appendChild(heading);
+
+    group.sort((a, b) =>
+      (b.completedAt || "").localeCompare(a.completedAt || "")
+    );
+
+    group.forEach(task => {
+      section.appendChild(createTaskElement(task));
+    });
+
+    list.appendChild(section);
+  });
+}
+
+function showHome() {
+  document.getElementById("completedView").style.display = "none";
+  document.getElementById("homeView").style.display = "block";
+  renderAll();
+}
+
+// ---------- DARK MODE ----------
+
+function toggleDark() {
+  document.body.classList.toggle("dark");
+
+  localStorage.setItem(
+    "myPlansDark",
+    document.body.classList.contains("dark")
+  );
+}
+
+if (localStorage.getItem("myPlansDark") === "true") {
+  document.body.classList.add("dark");
+}
+
+// ---------- RENDER ----------
+
+function renderAll() {
+  renderDate();
+  renderSections();
+  renderProgress();
+}
+
+renderAll();
+
+</script>
+
+</body>
+</html>
